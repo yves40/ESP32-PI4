@@ -18,7 +18,7 @@ or your remote control)
 #include <stdlib.h>
 #include <stdio.h>
 
-#define VERSION "codesend 1.05, May 05 2020"
+#define VERSION "codesend 1.06, May 05 2020"
 
 int main(int argc, char *argv[])
 {

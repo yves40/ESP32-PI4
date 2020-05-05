@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#define VERSION "RFSniffer 1.04, May 05 2020"
+#define VERSION "RFSniffer 1.05, May 05 2020"
 
 RCSwitch mySwitch;
 

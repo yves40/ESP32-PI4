@@ -8,12 +8,12 @@
   by @justy to provide a handy RF code sniffer
 */
 
-#include "../rc-switch/RCSwitch.h"
+#include "RCSwitch.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 
-#define VERSION "RFSniffer 1.03, Apr 29 2020"
+#define VERSION "RFSniffer 1.04, May 05 2020"
 
 RCSwitch mySwitch;
 

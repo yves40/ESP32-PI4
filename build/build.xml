@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="windows-1252" ?>
+<!-- ******************************************************************************************************
+    build.xml
+
+    May 04 2020       Initial
+
+****************************************************************************************************** -->
+<project name="assessment" default="help" basedir="." >
+    <property file="build.properties"/>
+
+    <target name="help" description="What's in this build file">
+        <echo message="************************ @  Targets available "></echo>
+        <echo message=""></echo>
+        <echo message="************************ @  .......... rfkitzerasp : Copy some utilities to zerasp"></echo>
+        <echo message=""></echo>
+    </target>
+
+    <!-- ===================================================================================== -->
+    <!-- Hosts deployment-->
+    <!-- ===================================================================================== -->
+    <target name="rfkitzerasp" depends="cleanup">
+        <echo message="************************ @ deploy node cams to ${zerasp.server}"></echo>
+        <antcall target="rfkit">
+            <param name="shellnode" value="zerasp"/>
+        </antcall>
+        <!-- The application files -->
+        <antcall target="serverupdate">
+            <param name="remoteserver" value="${zerasp.server}"/>
+            <param name="localdir" value="${build.workdir}"/>
+            <param name="localzip" value="rfkit.zip"/>
+            <param name="remotenetdir" value="${zerasp.approot}/rfutils"/>
+            <param name="remoteaccount" value="${zerasp.nodeuser}"/>
+            <param name="remoteaccountpass" value="${zerasp.nodepassword}"/>
+        </antcall>
+        <!-- Build -->
+        <sshexec command="chmod +x ${zerasp.approot}/cams/src/shell/*.sh" host="${zerasp.server}" username="${zerasp.nodeuser}"
+                 password="${zerasp.nodepassword}"
+                 trust="true" verbose="${zip.verbosemode}"/>
+    </target>
+
+    <!-- ===================================================================================== -->
+    <!-- node Vue web app kit building -->
+    <!-- ===================================================================================== -->
+    <target name="rfkit">
+        <copy todir="${build.workdir}" verbose="${copy.verbosemode}">
+            <fileset dir="${build.srcdir}" casesensitive="true">
+                <include name="**/codesend.cpp"/>
+                <include name="**/send.cpp"/>
+                <include name="**/RCSwitch.cpp"/>
+                <include name="**/RCSwitch.h"/>
+                <include name="**/RFSniffer.cpp"/>
+                <include name="**/Makefile"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- ===================================================================================== -->
+    <!-- Generic task -->
+    <!-- ===================================================================================== -->
+    <!-- This task cleans the local build folder -->
+    <!-- ===================================================================================== -->
+    <target name="cleanup" depends="dir.check" if="dir.exists">
+        <echo message="************************ @  Clean the build environment : ${build.workdir}"></echo>
+        <delete file="${build.workdir}/*.*" verbose="${delete.verbosemode}" includeemptydirs="true">
+            <fileset dir="${build.workdir}" />
+        </delete>
+    </target>
+    
+    <target name="dir.check">
+        <condition property="dir.exists">
+            <available file="${build.workdir}" type="dir"/>
+        </condition>
+    </target>
+
+    <!-- ===================================================================================== -->
+    <!-- This task cleans the server deployment folder -->
+    <!-- Cumulative updates don't call it -->
+    <!-- ===================================================================================== -->
+    <target name="servercleanup" >
+        <echo message="************************ @  Cleanup target server directory : ${remotenetdir} on ${remoteserver}"></echo>
+        <echo message="************************ @  Using : ${remoteaccount}"></echo>
+        <sshexec command="rm -rfv ${remotenetdir}/src ${remotenetdir}/*collection* ${remotenetdir}/package* ${remotenetdir}/*.zip
+            " host="${remoteserver}" username="${remoteaccount}" 
+            password="${remoteaccountpass}" trust="true" verbose="${delete.verbosemode}"  />
+    </target>
+
+    <!-- ===================================================================================== -->
+    <!-- This task updates a remote server -->
+    <!-- ===================================================================================== -->
+    <target name="serverupdate">
+        <echo message="************************ @  Transform files in  files in ${localdir} files in to Unix LF mode"></echo>
+        <!-- Beware not to transform binary image files -->
+        <fixcrlf srcdir="${localdir}" includes="**/*.*" excludes="**/*.png, **/*.jpg" eol="lf" eof="remove"/>
+
+        <echo message="************************ @  Zip all needed files before copy"></echo>
+        <zip destfile="${localdir}/${localzip}">
+            <fileset dir="${localdir}" casesensitive="true" includes="**/**"/>
+        </zip>
+
+        <echo message="************************ @  Copy zip file to ${remotenetdir} on ${remoteserver}"></echo>
+        <scp todir="${remoteaccount}@${remoteserver}:${remotenetdir}" password="${remoteaccountpass}" trust="true"
+             verbose="${copy.verbosemode}" failonerror="no">
+            <fileset dir="${localdir}" includes="**/*.zip"/>
+        </scp>
+        
+        <echo message="************************ @  Unzipping script files"></echo>
+        <sshexec command="unzip -o -q ${remotenetdir}/${localzip} -d ${remotenetdir}" host="${remoteserver}" username="${remoteaccount}"
+                 password="${remoteaccountpass}"
+                 trust="true" verbose="${zip.verbosemode}"/>
+    </target>
+
+
+</project>
+
+

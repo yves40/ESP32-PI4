@@ -3,6 +3,7 @@
     build.xml
 
     May 04 2020       Initial
+    May 05 2020       Add the make all command after deploy
 
 ****************************************************************************************************** -->
 <project name="assessment" default="help" basedir="." >
@@ -33,7 +34,10 @@
             <param name="remoteaccountpass" value="${zerasp.nodepassword}"/>
         </antcall>
         <!-- Build -->
-        <sshexec command="chmod +x ${zerasp.approot}/cams/src/shell/*.sh" host="${zerasp.server}" username="${zerasp.nodeuser}"
+        <sshexec command="chmod +x ${zerasp.approot}/rfutils/make.sh" host="${zerasp.server}" username="${zerasp.nodeuser}"
+                 password="${zerasp.nodepassword}"
+                 trust="true" verbose="${zip.verbosemode}"/>
+        <sshexec command="${zerasp.approot}/rfutils/make.sh" host="${zerasp.server}" username="${zerasp.nodeuser}"
                  password="${zerasp.nodepassword}"
                  trust="true" verbose="${zip.verbosemode}"/>
     </target>
@@ -50,6 +54,7 @@
                 <include name="**/RCSwitch.h"/>
                 <include name="**/RFSniffer.cpp"/>
                 <include name="**/Makefile"/>
+                <include name="**/make.sh"/>
             </fileset>
         </copy>
     </target>

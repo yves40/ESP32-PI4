@@ -1,0 +1,2 @@
+cd ~/rfutils
+make all

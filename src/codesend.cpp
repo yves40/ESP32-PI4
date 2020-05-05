@@ -19,7 +19,7 @@ or your remote control)
 #include <stdlib.h>
 #include <stdio.h>
 
-#define VERSION "codesend 1.10, May 05 2020"
+#define VERSION "codesend 1.12, May 05 2020"
 
 int main(int argc, char *argv[])
 {
@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     // Consult https://projects.drogon.net/raspberry-pi/wiringpi/pins/
     // for more information.
     int PIN = 0;
+    int LEDPIN = 1;
 
     printf("%s\n\n", VERSION);
 
@@ -66,6 +67,10 @@ int main(int argc, char *argv[])
         mySwitch.setProtocol(protocol);
     if (pulseLength != 0)
         mySwitch.setPulseLength(pulseLength);
+    // Led activity tracing
+    // Then enter the loop
+    pinMode(LEDPIN, OUTPUT);
+    digitalWrite(LEDPIN, HIGH);
     for (int i = 0; i < loops; ++i)
     {
         printf("Enable transmission on GPIO_GEN%i\n", PIN);
@@ -76,5 +81,6 @@ int main(int argc, char *argv[])
         mySwitch.disableTransmit();
         delay(1000);
     }
+    digitalWrite(LEDPIN, LOW);
     return 0;
 }
